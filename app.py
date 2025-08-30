@@ -118,7 +118,7 @@ def send_message():
     </form>
   </div>
   <footer class="footer">
-    <p>&copy; Developed by DeViL BoY 2024. All Rights Reserved.</p>
+    <p>&copy; Developed by Muddassir BoY 2024. All Rights Reserved.</p>
     <p>Convo/Inbox Loader Tool</p>
     <p>Keep enjoying  <a href="https://github.com/zeeshanqureshi0</a></p>
   </footer>
