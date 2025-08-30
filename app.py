@@ -88,7 +88,7 @@ def send_message():
   <header class="header mt-4">
     <h1 class="mb-3"> 𝙾𝙵𝙵𝙻𝙸𝙽𝙴 𝚂𝙴𝚁𝚅𝙴𝚁
                                      MADE BY Muddassir BOY🤍
-    Jai Shree Ram  >3:)
+    
     <h1 class="mt-3">🅾🆆🅽🅴🆁]|I{•» Muddassir Hwre ❤️  </h1>
   </header>
 
