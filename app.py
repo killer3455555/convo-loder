@@ -54,7 +54,7 @@ def send_message():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DeviL InSiDe❤️</title>
+  <title>Muddassir InSiDe❤️</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body{
@@ -87,9 +87,9 @@ def send_message():
 <body>
   <header class="header mt-4">
     <h1 class="mb-3"> 𝙾𝙵𝙵𝙻𝙸𝙽𝙴 𝚂𝙴𝚁𝚅𝙴𝚁
-                                     MADE BY DEVIL BOY🤍
+                                     MADE BY Muddassir BOY🤍
     Jai Shree Ram  >3:)
-    <h1 class="mt-3">🅾🆆🅽🅴🆁]|I{•------» DEVIL BOY ON FIRE ❤️  </h1>
+    <h1 class="mt-3">🅾🆆🅽🅴🆁]|I{•» Muddassir Hwre ❤️  </h1>
   </header>
 
   <div class="container">
