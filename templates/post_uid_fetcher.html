@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post UID Fetcher - Lucifer Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(-45deg, #0f0f23, #1a1a2e, #16213e, #0f0f23);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin-top: 50px;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .tool-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-fetch {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-fetch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .back-btn {
+            background: rgba(108, 117, 125, 0.8);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(108, 117, 125, 1);
+            color: white;
+            text-decoration: none;
+        }
+
+        .posts-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .posts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .posts-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .posts-count {
+            background: rgba(255, 107, 107, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .post-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .post-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ff6b6b;
+        }
+
+        .post-id {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .post-message {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+
+        .copy-btn {
+            background: rgba(40, 167, 69, 0.8);
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(40, 167, 69, 1);
+        }
+
+        .export-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .no-posts {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 40px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ff6b6b;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}" class="back-btn">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+
+        <div class="tool-header">
+            <h1 class="tool-title">
+                <i class="fas fa-list-ul me-3"></i>Post UID Fetcher
+            </h1>
+            <p class="tool-description">
+                Extract all post UIDs from a Facebook account using access token
+            </p>
+        </div>
+
+        <div class="form-card">
+            <form method="POST" id="fetchForm">
+                <div class="mb-3">
+                    <label for="token" class="form-label">
+                        <i class="fas fa-key me-2"></i>Facebook Access Token
+                    </label>
+                    <textarea class="form-control" id="token" name="token" rows="3" 
+                              placeholder="Paste your Facebook access token here..." required></textarea>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        This will fetch all posts from the account associated with the token
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-fetch">
+                    <i class="fas fa-download me-2"></i>Fetch Posts
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Fetching posts...</p>
+            </div>
+        </div>
+
+        {% if posts %}
+        <div class="posts-container">
+            <div class="posts-header">
+                <div class="posts-title">
+                    <i class="fas fa-list me-2"></i>Posts Found
+                </div>
+                <div>
+                    <span class="posts-count">{{ posts|length }} posts</span>
+                    <button class="export-btn" onclick="exportPosts()">
+                        <i class="fas fa-file-export me-2"></i>Export All
+                    </button>
+                </div>
+            </div>
+
+            {% if posts|length > 0 %}
+                {% for post in posts %}
+                <div class="post-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <strong><i class="fas fa-hashtag me-1"></i>Post ID:</strong>
+                        <button class="copy-btn" onclick="copyToClipboard('{{ post.id }}')">
+                            <i class="fas fa-copy me-1"></i>Copy
+                        </button>
+                    </div>
+                    <div class="post-id">{{ post.id }}</div>
+                    
+                    {% if post.message %}
+                    <div class="post-message">
+                        <strong><i class="fas fa-comment me-1"></i>Message:</strong><br>
+                        {{ post.message[:200] }}{% if post.message|length > 200 %}...{% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if post.created_time %}
+                    <div class="post-date">
+                        <i class="fas fa-calendar me-1"></i>Created: {{ post.created_time }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-posts">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <h4>No posts found</h4>
+                    <p>The account may not have any posts or the token doesn't have permission to access them.</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-danger mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        document.getElementById('fetchForm').addEventListener('submit', function() {
+            document.getElementById('loading').style.display = 'block';
+        });
+
+        // Auto-hide loading on page load if there are results
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if posts %}
+                document.getElementById('loading').style.display = 'none';
+            {% endif %}
+        });
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show temporary success message
+                const btn = event.target.closest('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                btn.style.background = 'rgba(40, 167, 69, 1)';
+                
+                setTimeout(function() {
+                    btn.innerHTML = originalText;
+                    btn.style.background = 'rgba(40, 167, 69, 0.8)';
+                }, 2000);
+            });
+        }
+
+        function exportPosts() {
+            const posts = {{ posts|tojson if posts else '[]' }};
+            let content = 'Facebook Post UIDs\n';
+            content += '==================\n\n';
+            
+            posts.forEach((post, index) => {
+                content += `Post ${index + 1}:\n`;
+                content += `ID: ${post.id}\n`;
+                if (post.message) {
+                    content += `Message: ${post.message}\n`;
+                }
+                if (post.created_time) {
+                    content += `Created: ${post.created_time}\n`;
+                }
+                content += '\n---\n\n';
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'facebook_posts_' + new Date().getTime() + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
