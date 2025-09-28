@@ -1,0 +1,136 @@
+const express = require("express");
+const multer = require("multer");
+const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
+const cors = require("cors");
+const { nanoid } = require("nanoid");
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static("public"));
+
+const upload = multer({ dest: path.join(__dirname, "uploads/") });
+
+// In-memory stores (replace with DB for production)
+const sessions = {}; // id -> { id, name, credsPath, createdAt }
+const tasks = {};    // id -> { id, name, sessionId, targetType, target, messages, delay, status }
+let logs = [];
+
+// helper to push log and limit buffer
+function pushLog(msg) {
+  const item = { ts: new Date().toISOString(), msg };
+  logs.push(item);
+  if (logs.length > 500) logs.shift();
+  // (In production you'd broadcast to SSE/WebSocket clients)
+}
+
+// Create session by uploading creds.json
+app.post("/api/sessions/upload", upload.single("creds"), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  const id = nanoid(8);
+  const name = req.body.sessionName || `session-${id}`;
+  const targetPath = path.join(__dirname, "uploads", `${id}-creds.json`);
+  fs.renameSync(req.file.path, targetPath);
+  sessions[id] = { id, name, credsPath: targetPath, createdAt: Date.now() };
+  pushLog(`Session created: ${name} (${id})`);
+  return res.json({ ok: true, session: sessions[id] });
+});
+
+// List sessions
+app.get("/api/sessions", (req, res) => {
+  return res.json(Object.values(sessions));
+});
+
+// Delete session
+app.delete("/api/sessions/:id", (req, res) => {
+  const id = req.params.id;
+  if (!sessions[id]) return res.status(404).json({ error: "Not found" });
+  try { fs.unlinkSync(sessions[id].credsPath); } catch(e) {}
+  delete sessions[id];
+  pushLog(`Session deleted: ${id}`);
+  return res.json({ ok: true });
+});
+
+// Create a task
+app.post("/api/tasks", (req, res) => {
+  const { name, sessionId, targetType, target, messages, delay } = req.body;
+  if (!sessionId || !sessions[sessionId]) return res.status(400).json({ error: "Invalid session" });
+  const id = nanoid(8);
+  tasks[id] = {
+    id, name: name || `task-${id}`, sessionId, targetType, target,
+    messages: Array.isArray(messages) ? messages : (messages||"").split("\n").map(s => s.trim()).filter(Boolean),
+    delay: Number(delay) || 1, createdAt: Date.now(), status: "pending"
+  };
+  pushLog(`Task created: ${tasks[id].name} (${id}) for session ${sessionId}`);
+  // Simulate sending in background (not truly background — immediate scheduling within same process)
+  simulateTaskSend(id);
+  return res.json({ ok: true, task: tasks[id] });
+});
+
+// List tasks
+app.get("/api/tasks", (req, res) => {
+  return res.json(Object.values(tasks));
+});
+
+// Fetch groups placeholder (returns empty)
+app.get("/api/groups", (req, res) => {
+  return res.json([]); // in real app you'd fetch using WhatsApp API/socket
+});
+
+// Simple logs endpoint
+app.get("/api/logs", (req, res) => {
+  return res.json(logs.slice(-200));
+});
+
+// SSE stream for logs (basic)
+app.get("/stream/logs", (req, res) => {
+  res.set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive"
+  });
+  // send existing logs
+  logs.slice(-50).forEach(l => res.write(`data: ${JSON.stringify(l)}\n\n`));
+  const interval = setInterval(() => {
+    // send any new logs
+    if (logs.length) {
+      const last = logs[logs.length-1];
+      res.write(`data: ${JSON.stringify(last)}\n\n`);
+    }
+  }, 1500);
+  req.on("close", () => clearInterval(interval));
+});
+
+// simulate sending one task — iterates messages with delay (ms)
+function simulateTaskSend(taskId) {
+  const t = tasks[taskId];
+  if (!t) return;
+  t.status = "running";
+  (async () => {
+    for (let i = 0; i < t.messages.length; i++) {
+      const msg = t.messages[i];
+      pushLog(`[task ${t.id}] sending to ${t.target || t.targetType} — "${msg}" (${i+1}/${t.messages.length})`);
+      // simulate delay
+      await new Promise(r => setTimeout(r, Math.max(200, t.delay*1000)));
+    }
+    t.status = "done";
+    pushLog(`[task ${t.id}] completed`);
+  })();
+}
+
+// simple send endpoint to send single message now (simulated)
+app.post("/api/send", (req, res) => {
+  const { sessionId, to, body } = req.body;
+  if (!sessionId || !sessions[sessionId]) return res.status(400).json({ error: "Invalid session" });
+  pushLog(`[send] ${sessionId} -> ${to}: ${body}`);
+  return res.json({ ok: true });
+});
+
+const PORT = process.env.PORT || 3000;
+if (!fs.existsSync(path.join(__dirname, "uploads"))) fs.mkdirSync(path.join(__dirname, "uploads"));
+app.listen(PORT, () => {
+  console.log("Server listening on", PORT);
+  pushLog(`Server started on port ${PORT}`);
+});
