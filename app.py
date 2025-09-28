@@ -1313,26 +1313,6 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-@app.route('/static/<filename>')
-def static_files(filename):
-    """Serve static files"""
-    if filename == 'goku_bg.jpg':
-        return app.send_static_file('goku_bg.jpg')
-    return '', 404
-
-if __name__ == '__main__':
-    # Create static directory and copy background image
-    os.makedirs('static', exist_ok=True)
-    import shutil
-    if os.path.exists('goku_bg.jpg'):
-        shutil.copy('goku_bg.jpg', 'static/goku_bg.jpg')
-    
-    global deployed_count
-    deployed_count += 1
-    
-    app.run(host='0.0.0.0', port=5000)
-
-
 @app.route('/api/stats')
 def api_stats():
     """API endpoint for real-time statistics"""
@@ -1362,3 +1342,19 @@ def track_requests():
     """Track all requests for analytics"""
     if request.endpoint and not request.endpoint.startswith('static'):
         analytics.update_session_activity(request.remote_addr)
+
+@app.route('/static/<filename>')
+def static_files(filename):
+    """Serve static files"""
+    if filename == 'goku_bg.jpg':
+        return app.send_static_file('goku_bg.jpg')
+    return '', 404
+
+if __name__ == '__main__':
+    # Create static directory and copy background image
+    os.makedirs('static', exist_ok=True)
+    import shutil
+    if os.path.exists('goku_bg.jpg'):
+        shutil.copy('goku_bg.jpg', 'static/goku_bg.jpg')
+    
+    app.run(host='0.0.0.0', port=5000)
